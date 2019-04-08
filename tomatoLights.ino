@@ -3,7 +3,7 @@
 #include <WiFiUdp.h>
 #include <Arduino.h>
 #include <U8g2lib.h>
-#include "secrets.h"
+#include "wifiCreds.h"
 
 // Light timing
 
