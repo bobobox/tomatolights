@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include "wifiCreds.h"
+#include "Adafruit_seesaw.h"
+
 
 // Light timing
 
@@ -30,6 +32,9 @@ volatile int currentHour;
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds, updateIntervalMillis);
+
+// Seesaw sensor for humidity and temperature
+Adafruit_seesaw ss;
 
 void u8g2_prepare(void) {
   u8g2.setFont(u8g2_font_6x10_tf);
@@ -71,15 +76,15 @@ void setup(){
   u8g2.clearBuffer();
 
   u8g2.setCursor(0, 11);
-  u8g2.print(" Lights on ");
+  u8g2.print("On: ");
   if (onHour < 10) {
     u8g2.print("0");
   }
+  u8g2.setFont(m2icon_7);
   u8g2.print(onHour);
-  u8g2.print(":00 CDT");
+  u8g2.setFont(u8g2_font_6x10_tf);
+  u8g2.print(":00-");
 
-  u8g2.setCursor(0, 22);
-  u8g2.print("Lights off ");
   if (offHour < 10) {
     u8g2.print("0");
   }
@@ -109,6 +114,14 @@ void loop() {
   u8g2.print(timeClient.getFormattedTime());
   u8g2.print(" CDT");
   u8g2.sendBuffer();
+
+  // Temp and humidity readings
+
+  float temp_c = ss.getTemp();
+  uint16_t humidity = ss.touchRead(0);
+
+  u8g2.setCursor(0, 22);
+
 
   if (onHour < offHour) {
 
