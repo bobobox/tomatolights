@@ -36,6 +36,16 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds, updateIntervalM
 // Seesaw sensor for humidity and temperature
 Adafruit_seesaw ss;
 
+volatile float temp_c;
+volatile float temp_cumulative = 0;
+volatile uint16_t hum;
+volatile float hum_cumulative = 0;
+volatile int ss_reading_count = 0;
+
+// Humidity warning light
+static byte humidityWarningPin = 15;
+
+
 void u8g2_prepare(void) {
   u8g2.setFont(u8g2_font_6x10_tf);
   u8g2.setFontRefHeightExtendedText();
@@ -45,6 +55,9 @@ void u8g2_prepare(void) {
 }
 
 void setup(){
+
+  pinMode(humidityWarningPin, OUTPUT);
+  digitalWrite(humidityWarningPin, LOW);
 
   pinMode(lightPin, OUTPUT);
   // Stay dim until ready to go
@@ -117,8 +130,8 @@ void loop() {
 
   // Temp and humidity readings
 
-  float temp_c = ss.getTemp();
-  uint16_t humidity = ss.touchRead(0);
+  temp_c = ss.getTemp();
+  humidity = ss.touchRead(0);
 
   u8g2.setCursor(0, 22);
 
